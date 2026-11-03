@@ -31,7 +31,7 @@ function pdf_document_path(string $id): string
 
 function pdf_run_qpdf(array $arguments): array
 {
-    $binary = getenv('QPDF_BINARY') ?: 'qpdf';
+    $binary = getenv('QPDF_BINARY') ?: '/opt/bin/qpdf';
     $command = array_merge([$binary], $arguments);
     $pipes = [];
     $process = @proc_open(
