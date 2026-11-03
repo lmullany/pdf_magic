@@ -68,3 +68,25 @@ if (fileInput) {
             : "PDF documents only";
     });
 }
+// Repair legacy mojibake in pages saved with a mis-decoded UTF-8 character set.
+document.addEventListener('DOMContentLoaded', () => {
+    const replacements = new Map([
+        [String.fromCharCode(0xC2, 0xB7), '·'],
+        [String.fromCodePoint(0xE2, 0x2020, 0x2018), '↑'],
+        [String.fromCodePoint(0xE2, 0x2020, 0x201C), '↓'],
+        [String.fromCodePoint(0xC3, 0x2014), '×'],
+        [String.fromCodePoint(0xE2, 0x25A0, 0xA4), '◇'],
+        [String.fromCodePoint(0xE2, 0xA0, 0xBF), '⠿'],
+    ]);
+
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const textNodes = [];
+    while (walker.nextNode()) {
+        textNodes.push(walker.currentNode);
+    }
+    for (const node of textNodes) {
+        for (const [bad, good] of replacements) {
+            node.nodeValue = node.nodeValue.replaceAll(bad, good);
+        }
+    }
+});

@@ -31,7 +31,15 @@ function pdf_document_path(string $id): string
 
 function pdf_run_qpdf(array $arguments): array
 {
-    $binary = getenv('QPDF_BINARY') ?: '/opt/bin/qpdf';
+    $configuredBinary = getenv('QPDF_BINARY');
+    if (is_string($configuredBinary) && $configuredBinary !== '') {
+        $binary = $configuredBinary;
+    } elseif (PHP_OS_FAMILY === 'Windows') {
+        $binary = 'C:\\Program Files\\qpdf 12.4.2\\bin\\qpdf.exe';
+    } else {
+        // Preserve the Synology installation's existing qpdf location.
+        $binary = '/opt/bin/qpdf';
+    }
     $command = array_merge([$binary], $arguments);
     $pipes = [];
     $process = @proc_open(
